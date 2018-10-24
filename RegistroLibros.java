@@ -2,13 +2,17 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.text.NumberFormatter;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.*;
 import java.text.NumberFormat;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class RegistroLibros extends JPanel {
     static JFormattedTextField id, Anio, Edicion, CantExit, Precio;
     static JTextField Nombre, Autor, Editorial;
     static JButton Volver, Aceptar, Limpiar;
-
 
     public RegistroLibros(){
         int ancho = 1024;
@@ -26,8 +30,6 @@ public class RegistroLibros extends JPanel {
         NumberFormatter numberFormatter = new NumberFormatter(formato);
         numberFormatter.setValueClass(Long.class);
         numberFormatter.setAllowsInvalid(false);
-
-        //numberFormatter.setMinimum(0);
 
         //fuente
         Font fuente = new Font("Chakra Petch", 14,18);
@@ -65,7 +67,6 @@ public class RegistroLibros extends JPanel {
         Autor.setBounds(90, 260, 150, 35);
         add(Autor);
 
-
         //Label y campo del anio
         JLabel anioLabel = new JLabel("Año de publicacion:");
         anioLabel.setBounds(310, 140, 160, 35);
@@ -94,13 +95,13 @@ public class RegistroLibros extends JPanel {
         editorialLabel.setFont(fuente);
         editorialLabel.setBounds(310, 260, 80, 35);
         add(editorialLabel);
-        Editorial = new JFormattedTextField(numberFormatter);
+        Editorial = new JTextField();
         Editorial.setFont(fuente);
         Editorial.setBorder(estilo);
         Editorial.setBounds(400, 260, 100, 35);
         add(Editorial);
 
-        //LAbel y campo de cantidad de libros
+        //Label y campo de cantidad de libros
         JLabel cantLabel = new JLabel("Cantidad de libros:");
         cantLabel.setFont(fuente);
         cantLabel.setBounds(20, 310, 160,35);
@@ -113,15 +114,14 @@ public class RegistroLibros extends JPanel {
 
         //Label y campo del precio
         JLabel PrecioLabel = new JLabel("Precio:");
-        PrecioLabel.setBounds(20, 350, 80, 35);
+        PrecioLabel.setBounds(20, 360, 80, 35);
         PrecioLabel.setFont(fuente);
         add(PrecioLabel);
         Precio = new JFormattedTextField(numberFormatter);
         Precio.setFont(fuente);
         Precio.setBorder(estilo);
-        Precio.setBounds(90, 350, 80, 35);
+        Precio.setBounds(90, 360, 80, 35);
         add(Precio);
-
 
         // boton volver
         Volver = new JButton("Volver", new ImageIcon("imagenes/volver.png"));
@@ -129,7 +129,6 @@ public class RegistroLibros extends JPanel {
         Volver.setBorder(estiloBotones);
         Volver.setFont(fuente);
         add(Volver);
-
 
         // boton limpiar
         Limpiar = new JButton("Limpiar");
@@ -145,6 +144,58 @@ public class RegistroLibros extends JPanel {
         Aceptar.setFont(fuente);
         add(Aceptar);
 
+        Volver.addActionListener(new bot());
+        Limpiar.addActionListener(new bot());
+        Aceptar.addActionListener(new botonGuardar(id, Anio, Edicion, CantExit, Precio, Nombre, Autor, Editorial));
 
+    }
+
+    public static class botonGuardar implements ActionListener{
+        public JFormattedTextField id, Anio, Edicion, CantExit, Precio;
+        public JTextField Nombre, Autor, Editorial;
+
+        public botonGuardar(JFormattedTextField id, JFormattedTextField Anio,JFormattedTextField Edicion,
+        JFormattedTextField CantExit, JFormattedTextField Precio, JTextField Nombre,JTextField Autor,JTextField Editorial){
+            this.id = id; this.Anio = Anio; this.Edicion = Edicion; this.CantExit = CantExit;
+            this.Precio = Precio; this.Nombre = Nombre; this.Autor = Autor; this.Editorial = Editorial;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String libro = id.getText() +"," + Anio.getText()+ "," + Edicion.getText() + "," + CantExit.getText()
+                    + "," + Precio.getText()+ "," + Nombre.getText() + "," + Autor.getText() + "," + Editorial.getText() ;
+
+            File un = new File("RegistroLibros.txt");
+            try {
+                FileWriter we = new FileWriter(un, true);
+                PrintWriter sa = new PrintWriter(we);
+                sa.println(libro);
+
+                sa.flush();
+                sa.close();
+                we.close();
+            }
+            catch (IOException ex) {
+                Logger.getLogger(RegistroLibros.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        }
+    }
+
+    public static class bot implements ActionListener{
+
+        public bot(){}
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (e.getSource() == Volver){
+                Main.TodoInicio.setVisible(true);
+                Main.registroLibro.setVisible(false);
+            }
+            if (e.getSource() == Limpiar){
+                id.setText(""); Anio.setText(""); Edicion.setText(""); CantExit.setText("");
+                Precio.setText(""); Nombre.setText(""); Autor.setText(""); Editorial.setText("");
+            }
+        }
     }
 }
